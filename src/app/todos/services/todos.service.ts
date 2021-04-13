@@ -17,4 +17,14 @@ export class TodosService {
     const updatedTodos = [...this.todosSubject.getValue(), newTodo];
     this.todosSubject.next(updatedTodos);
   }
+
+  toggleAll(isCompleted: boolean): void {
+    const updatedTodos = this.todosSubject.getValue().map((todo) => {
+      return {
+        ...todo,
+        isCompleted,
+      };
+    });
+    this.todosSubject.next(updatedTodos);
+  }
 }
