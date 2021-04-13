@@ -6,7 +6,7 @@ import { TodosService } from '../../services/todos.service';
   templateUrl: './header.component.html',
 })
 export class HeaderComponent {
-  text: string = '';
+  text = '';
 
   constructor(private todoService: TodosService) {}
 
