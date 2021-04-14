@@ -10,36 +10,38 @@ import { Todo } from '../../types/todo.interface';
   templateUrl: './main.component.html',
 })
 export class MainComponent {
-  visibleTodos$: Observable<Todo[]>;
-  noTodoClass$: Observable<boolean>;
-  isAllTodosSelected$: Observable<boolean>;
+  editingId: string | null = null;
 
-  constructor(private todosService: TodosService) {
-    this.isAllTodosSelected$ = this.todosService.todosSubject.pipe(
-      map((todos) => todos.every((todo) => todo.isCompleted))
-    );
+  visibleTodos$ = combineLatest([
+    this.todosService.todosSubject,
+    this.todosService.filterSubject,
+  ]).pipe(
+    map(([todos, filter]: [Todo[], FilterEnum]) => {
+      if (filter === FilterEnum.active) {
+        return todos.filter((todo) => !todo.isCompleted);
+      }
+      if (filter === FilterEnum.completed) {
+        return todos.filter((todo) => todo.isCompleted);
+      }
+      return todos;
+    })
+  );
 
-    this.noTodoClass$ = this.todosService.todosSubject.pipe(
-      map((todos) => todos.length === 0)
-    );
+  noTodoClass$ = this.todosService.todosSubject.pipe(
+    map((todos) => todos.length === 0)
+  );
 
-    this.visibleTodos$ = combineLatest([
-      this.todosService.todosSubject,
-      this.todosService.filterSubject,
-    ]).pipe(
-      map(([todos, filter]: [Todo[], FilterEnum]) => {
-        if (filter === FilterEnum.active) {
-          return todos.filter((todo) => !todo.isCompleted);
-        }
-        if (filter === FilterEnum.completed) {
-          return todos.filter((todo) => todo.isCompleted);
-        }
-        return todos;
-      })
-    );
-  }
+  isAllTodosSelected$ = this.todosService.todosSubject.pipe(
+    map((todos) => todos.every((todo) => todo.isCompleted))
+  );
+
+  constructor(private todosService: TodosService) {}
 
   toggleAllTodos(target: EventTarget): void {
     this.todosService.toggleAll((target as HTMLInputElement).checked);
+  }
+
+  setEditingId(editingId: string | null): void {
+    this.editingId = editingId;
   }
 }

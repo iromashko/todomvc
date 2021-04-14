@@ -7,6 +7,7 @@ import { Todo } from '../types/todo.interface';
 export class TodosService {
   todosSubject = new BehaviorSubject<Todo[]>([]);
   filterSubject = new BehaviorSubject<FilterEnum>(FilterEnum.all);
+  filter$ = this.filterSubject.asObservable();
 
   addTodo(text: string): void {
     const newTodo: Todo = {
@@ -15,6 +16,19 @@ export class TodosService {
       text,
     };
     const updatedTodos = [...this.todosSubject.getValue(), newTodo];
+    this.todosSubject.next(updatedTodos);
+  }
+
+  changeTodo(id: string, text: string): void {
+    const updatedTodos = this.todosSubject.getValue().map((todo) => {
+      if (todo.id === id) {
+        return {
+          ...todo,
+          text,
+        };
+      }
+      return todo;
+    });
     this.todosSubject.next(updatedTodos);
   }
 
